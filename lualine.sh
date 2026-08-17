@@ -132,7 +132,6 @@ fi
 
 # ── Usage (rate limits + session) via usage-hud --json ────────────────────────
 I_SESS=$''   # clock         (oct-clock U+F43A)
-I_WK=$''     # calendar      (fa-calendar_days U+F073)
 I_RESET=$''  # refresh       (fa-refresh U+F021) — resets in
 I_OPUS=$''   # crown         (fa-crown U+EDEB) — Opus weekly cap
 I_TOK=$''    # coins         (fa-coins U+EDE8) — session tokens
@@ -176,9 +175,9 @@ else
 fi
 if [ "$WIDE" = 1 ]; then
   if [ -n "$wk" ]; then
-    add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$LIGHT_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+    add_seg " $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$LIGHT_FG")" "$(meter_bg "$wk" "$BASE_WK")"
   else
-    add_seg " ${I_WK} $(meter_icon 0) --% " "$LIGHT_FG" "$BASE_WK"
+    add_seg " $(meter_icon 0) --% " "$LIGHT_FG" "$BASE_WK"
   fi
 fi
 [ "$WIDE" = 1 ] && [ -n "$opus" ] && add_seg " ${I_OPUS} $(meter_icon "$opus") $(meter_left "$opus")% ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
