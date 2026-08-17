@@ -31,7 +31,7 @@ const RED = '\x1b[31m';
 // Config
 // ============================================================================
 const CACHE_TTL_MS = 90_000; // 90s between API polls
-const CACHE_TTL_FAILURE_MS = 15_000;
+const CACHE_TTL_FAILURE_MS = 300_000; // back off 5min after a failed poll (the endpoint 429s easily)
 const API_TIMEOUT_MS = 10_000;
 const MAX_TAIL_BYTES = 512 * 1024;
 const WARNING_THRESHOLD = 70;
@@ -359,6 +359,11 @@ async function getUsageData() {
   if (cache && Date.now() - cache.timestamp < CACHE_TTL_MS) {
     return cache.data;
   }
+  // A failed poll (429, network drop) backs off instead of re-firing on every
+  // render — the statusline redraws far more often than the endpoint tolerates.
+  if (cache?.data && cache.failedAt && Date.now() - cache.failedAt < CACHE_TTL_FAILURE_MS) {
+    return { ...cache.data, _stale: true };
+  }
 
   const creds = getCredentials();
   if (!creds || !creds.accessToken) return cache?.data || null;
@@ -366,8 +371,15 @@ async function getUsageData() {
 
   const response = await fetchUsage(creds.accessToken);
   if (!response) {
-    // Use stale cache on failure
-    if (cache?.data) return { ...cache.data, _stale: true };
+    // Serve the stale cache, and remember the failure so we back off.
+    if (cache?.data) {
+      try {
+        writeFileSync(getCachePath(), JSON.stringify({
+          timestamp: cache.timestamp, data: cache.data, failedAt: Date.now(),
+        }));
+      } catch {}
+      return { ...cache.data, _stale: true };
+    }
     return null;
   }
 
