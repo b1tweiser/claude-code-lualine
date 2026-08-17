@@ -2,9 +2,10 @@
 
 A powerline statusline for [Claude Code](https://claude.com/claude-code), in the style of nvim's lualine.
 
-```
- vim-mode │  branch │  dir │ 🕐 18m │ 🔋 85% ▸ ↻ 2h56m │ 📅 🔋 59% ▸ ↻ 18h06m │ 🧠 57% │ 🪙 55.7k ▸ 💵 $50
-```
+![The statusline in a terminal](assets/statusline.png)
+
+The leftmost `INSERT` block only appears if you use Claude Code's vim mode; without it the bar starts at the directory.
+
 
 Segments, left to right:
 
