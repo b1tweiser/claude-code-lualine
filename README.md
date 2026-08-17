@@ -3,7 +3,7 @@
 A powerline statusline for [Claude Code](https://claude.com/claude-code), in the style of nvim's lualine.
 
 ```
- vim-mode │  branch │  dir │ 🕐 12m │ 🔋 ▸ ↻ 3h09m │ 📅 🔋 ▸ ↻ 18h19m │ 🧠 53% │ 🪙 52.5k ▸ 💵 $42
+ vim-mode │  branch │  dir │ 🕐 18m │ 🔋 85% ▸ ↻ 2h56m │ 📅 🔋 59% ▸ ↻ 18h06m │ 🧠 57% │ 🪙 55.7k ▸ 💵 $50
 ```
 
 Segments, left to right:
@@ -56,7 +56,7 @@ Worth knowing before you run it:
 
 - It reads your Claude Code **OAuth token** from the macOS Keychain (`security find-generic-password`) or `~/.claude/.credentials.json`, and sends it as a bearer token to `https://api.anthropic.com/api/oauth/usage` to fetch your rate-limit percentages. That endpoint is what the Claude Code client itself uses; it is not part of the documented public API and may change.
 - It reads your **session transcripts** under `~/.claude/projects/` to compute session duration, token totals, and cost.
-- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 90s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
+- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 60s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
 
 Nothing is uploaded anywhere except the single authenticated request to Anthropic's own usage endpoint.
 
@@ -72,7 +72,7 @@ The `PRICING` table near the top of `usage-hud.mjs` holds per-million-token list
 
 Everything worth changing is at the top of `lualine.sh`:
 
-- **Colours** — `MODEL_BG`, `BR_BG`, `DIR_BG`, `SESS_BG`, `BASE_5H`, `BASE_WK`, `BASE_CTX`, `BASE_TOK`, plus `AMBER` / `HOT` for the warning states. All 256-colour indices.
+- **Colours** — `BR_BG`, `DIR_BG`, `SESS_BG`, `BASE_5H`, `BASE_WK`, `BASE_CTX`, `BASE_TOK`, plus `AMBER` / `HOT` for the warning states. All 256-colour indices.
 - **Icons** — the `I_*` variables. Note they hold **literal glyph bytes**, not escapes: macOS ships bash 3.2, which does not expand `$'\uXXXX'`.
 - **Thresholds** — `meter_bg`, `meter_fg`, and `meter_icon` all switch at 70% and 90%; `meter_icon` adds steps at 25% and 50%.
 
