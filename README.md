@@ -49,7 +49,7 @@ fold() { ~/.claude/hud/hud-toggle.sh; }
 def fold [] { ^($env.HOME | path join ".claude/hud/hud-toggle.sh") }
 ```
 
-`fold` shadows `/usr/bin/fold`, the text-wrapping utility — pick another name if you use it. Inside Claude Code, `!` runs your login shell, so `! fold` works from the prompt once the function is loaded.
+`fold` shadows `/usr/bin/fold`, the text-wrapping utility — pick another name if you use it. Inside Claude Code, `!` runs a snapshot of your login shell taken when the session started — `! fold` works in sessions opened after you add the function, and in older ones you can still call `! ~/.claude/hud/hud-toggle.sh`. Note nushell users get the same `!` shell as everyone else (zsh/bash), not nu, so the nu `def` alone won't answer there.
 
 ## Install
 
