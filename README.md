@@ -16,16 +16,40 @@ Segments, left to right:
 | dir | Current working directory |
 | session | Duration of the current session |
 | 5-hour limit | Battery icon + percent of the window still left, and time until reset |
-| weekly limit | Same, for the 7-day window |
-| Opus weekly | Same, for the separate Opus cap — hidden unless your plan reports one |
+| weekly limit | Same, for the 7-day window — expanded only |
+| Opus weekly | Same, for the separate Opus cap — expanded only, and hidden unless your plan reports one |
 | context | Percentage of the model's context window in use |
-| session tokens | Total input + output tokens this session |
-| session cost | List-price cost of this session's tokens |
+| session tokens | Total input + output tokens this session — expanded only |
+| session cost | List-price cost of this session's tokens — expanded only |
 | agents | Subagents in flight — `Task`/`Agent` calls with no result back yet. Tail of the line, shown only while at least one is running |
 
 Rate-limit numbers are polled every 2 minutes (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint 429s readily — 30s polling trips it immediately and even 60s draws rejections — and every rejection costs 5 minutes of frozen numbers, so raise those values rather than lowering them. Set `CLAUDE_HUD_DUMP=/path/to/file.json` to capture the raw endpoint payload on the next successful poll if you want to inspect fields the renderer does not use. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it. If a poll fails with no cache to fall back on (first run, signed out), the meter blocks render as `--%` rather than disappearing.
 
 The rate-limit meters read as **budget remaining** — the number counts down from 100% as you spend, the battery drains full → empty alongside it, and the block heats from its base colour through clay (at 30% left) to barn red (at 10% left).
+
+## Folded and expanded
+
+Two densities. **Folded** — the default — keeps branch, dir, session, the 5-hour meter with its reset time, and context. **Expanded** adds the weekly meter, the Opus cap, session tokens, and cost.
+
+`hud-toggle.sh` flips between them by creating or removing `~/.claude/.hud-expanded`. The next redraw picks it up; nothing to restart.
+
+```sh
+~/.claude/hud/hud-toggle.sh   # prints "hud: expanded" or "hud: folded"
+```
+
+Worth a one-word command in your shell config:
+
+```sh
+# zsh / bash — ~/.zshrc
+fold() { ~/.claude/hud/hud-toggle.sh; }
+```
+
+```nu
+# nushell — $nu.config-path
+def fold [] { ^($env.HOME | path join ".claude/hud/hud-toggle.sh") }
+```
+
+`fold` shadows `/usr/bin/fold`, the text-wrapping utility — pick another name if you use it. Inside Claude Code, `!` runs your login shell, so `! fold` works from the prompt once the function is loaded.
 
 ## Install
 

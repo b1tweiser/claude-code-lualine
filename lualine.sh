@@ -9,6 +9,10 @@ export LC_ALL="${LC_ALL:-en_US.UTF-8}" LANG="${LANG:-en_US.UTF-8}"
 
 input=$(cat)
 
+# Expanded mode: flag file present → show reset countdowns, weekly cap, cost.
+# Flip with ~/.claude/hud/hud-toggle.sh; picked up on the next render.
+[ -f "$HOME/.claude/.hud-expanded" ] && WIDE=1 || WIDE=0
+
 # ── Powerline glyphs & icons (Nerd Font) ─────────────────────────────────────
 SEP=$''      # right-filled separator
 SUBSEP=$''   # right-thin separator
@@ -170,15 +174,17 @@ if [ -n "$fiveh" ]; then
 else
   add_seg " $(meter_icon 0) --% " "$DARK_FG" "$BASE_5H"
 fi
-if [ -n "$wk" ]; then
-  add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$LIGHT_FG")" "$(meter_bg "$wk" "$BASE_WK")"
-else
-  add_seg " ${I_WK} $(meter_icon 0) --% " "$LIGHT_FG" "$BASE_WK"
+if [ "$WIDE" = 1 ]; then
+  if [ -n "$wk" ]; then
+    add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$LIGHT_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+  else
+    add_seg " ${I_WK} $(meter_icon 0) --% " "$LIGHT_FG" "$BASE_WK"
+  fi
 fi
-[ -n "$opus" ]   && add_seg " ${I_OPUS} $(meter_icon "$opus") $(meter_left "$opus")% ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
+[ "$WIDE" = 1 ] && [ -n "$opus" ] && add_seg " ${I_OPUS} $(meter_icon "$opus") $(meter_left "$opus")% ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
 add_seg " ${I_CTX} ${ctx}% " "$(meter_fg "$ctx" "$LIGHT_FG")" "$(meter_bg "$ctx" "$BASE_CTX")"
-[ -n "$tokens" ] && add_seg " ${I_TOK} ${tokens} " "$DARK_FG" "$BASE_TOK"
-[ -n "$cost" ]   && add_seg " ${I_COST} \$${cost} " "$DARK_FG" "$BASE_TOK"
+[ "$WIDE" = 1 ] && [ -n "$tokens" ] && add_seg " ${I_TOK} ${tokens} " "$DARK_FG" "$BASE_TOK"
+[ "$WIDE" = 1 ] && [ -n "$cost" ] && add_seg " ${I_COST} \$${cost} " "$DARK_FG" "$BASE_TOK"
 # Subagents in flight (spawned, no tool_result yet) — tail of the line, only when running.
 [ "${agents:-0}" -gt 0 ] 2>/dev/null && add_seg " ${I_AGENT} ${agents} " "$DARK_FG" "$AGENT_BG"
 
