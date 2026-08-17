@@ -30,7 +30,7 @@ const RED = '\x1b[31m';
 // ============================================================================
 // Config
 // ============================================================================
-const CACHE_TTL_MS = 30_000; // 30s between API polls; a 429 falls back to CACHE_TTL_FAILURE_MS
+const CACHE_TTL_MS = 60_000; // 60s between API polls — 30s reliably trips the endpoint's 429
 const CACHE_TTL_FAILURE_MS = 300_000; // back off 5min after a failed poll (the endpoint 429s easily)
 const API_TIMEOUT_MS = 10_000;
 const MAX_TAIL_BYTES = 512 * 1024;
@@ -95,7 +95,8 @@ function getModelName(stdin) {
 // Transcript Parser (token usage + session start)
 // ============================================================================
 async function parseTranscript(transcriptPath) {
-  const result = { sessionStart: null, lastTokenUsage: null, sessionTotalTokens: 0, toolCallCount: 0, agentCallCount: 0 };
+  const result = { sessionStart: null, lastTokenUsage: null, sessionTotalTokens: 0, toolCallCount: 0, agentCallCount: 0, activeAgents: 0 };
+  const pendingAgents = new Set();
   if (!transcriptPath || !existsSync(transcriptPath)) return result;
 
   const lines = [];
@@ -146,12 +147,17 @@ async function parseTranscript(transcriptPath) {
             result.toolCallCount++;
             if (block.name === 'Task' || block.name === 'proxy_Task' || block.name === 'Agent') {
               result.agentCallCount++;
+              // An agent is running until its tool_result comes back.
+              pendingAgents.add(block.id);
             }
+          } else if (block.type === 'tool_result' && block.tool_use_id) {
+            pendingAgents.delete(block.tool_use_id);
           }
         }
       }
     } catch { /* skip */ }
   }
+  result.activeAgents = pendingAgents.size;
   return result;
 }
 
@@ -513,6 +519,7 @@ async function main() {
         sessionTokens: transcript.sessionTotalTokens > 0 ? formatTokenCount(transcript.sessionTotalTokens) : '',
         sessionCost: (() => { const c = computeSessionSpend(stdin.transcript_path); return c > 0 ? `$${c < 10 ? c.toFixed(2) : Math.round(c)}` : ''; })(),
         agentCalls: transcript.agentCallCount,
+        agentsRunning: transcript.activeAgents,
       }));
       return;
     }

@@ -39,6 +39,7 @@ TAIL_BG=234        # ink backdrop for final cap
 # Claude-orange session pop; each metric a distinct warm step, all ramping
 # through clay → barn red as they fill. No greens/greys — stays on-palette.
 SESS_BG=208        # Claude orange — current session, made to POP
+AGENT_BG=214       # light amber — subagents in flight, sits beside the session block
 BASE_5H=137        # kraft brown
 BASE_WK=138        # dusty rose-brown — weekly cap; calm, no red/yellow cast
 BASE_CTX=130       # burnt sienna
@@ -146,7 +147,7 @@ if [ -n "$usage_json" ]; then
     "opus_r=\(.opusWeeklyReset // "")",
     "tokens=\(.sessionTokens // "")",
     "cost=\(.sessionCost // "" | ltrimstr("$"))",
-    "agents=\(.agentCalls // 0)",
+    "agents=\(.agentsRunning // 0)",
     "sess=\(if .sessionMin != null then (if .sessionMin >= 60 then "\(.sessionMin/60|floor)h\(.sessionMin%60)m" else "\(.sessionMin)m" end) else "" end)"
   ' 2>/dev/null)"
 fi
@@ -163,9 +164,9 @@ add_seg " ${I_DIR} ${dir_name} " "$DIR_FG" "$DIR_BG"
 # meter group
 # Session pops (ink on Claude orange); kraft-brown/sienna meters take cream;
 # weekly stays recessive with a dim base fg. Amber/red states handled by meter_fg.
-sess_txt=" ${I_SESS} ${sess}"
-[ "${agents:-0}" -gt 0 ] 2>/dev/null && sess_txt="${sess_txt} ${SUBSEP} ${I_AGENT} ${agents}"
-[ -n "$sess" ]   && add_seg "${sess_txt} " "$DARK_FG" "$SESS_BG"
+[ -n "$sess" ]   && add_seg " ${I_SESS} ${sess} " "$DARK_FG" "$SESS_BG"
+# Subagents currently in flight (spawned, no tool_result yet). Hidden when none.
+[ "${agents:-0}" -gt 0 ] 2>/dev/null && add_seg " ${I_AGENT} ${agents} " "$DARK_FG" "$AGENT_BG"
 if [ -n "$fiveh" ]; then
   add_seg " $(meter_icon "$fiveh") $(meter_left "$fiveh")% ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
 else

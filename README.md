@@ -14,6 +14,7 @@ Segments, left to right:
 | branch | Git branch + dirty-file count |
 | dir | Current working directory |
 | session | Duration of the current session |
+| agents | Subagents currently in flight — spawned with no result back yet; hidden when none are running |
 | 5-hour limit | Battery icon + percent of the window still left, and time until reset |
 | weekly limit | Same, for the 7-day window |
 | Opus weekly | Same, for the separate Opus cap — hidden unless your plan reports one |
@@ -21,7 +22,7 @@ Segments, left to right:
 | session tokens | Total input + output tokens this session |
 | session cost | List-price cost of this session's tokens |
 
-Rate-limit numbers are polled every 30 seconds (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint will 429 under heavier polling, so raise those values rather than lowering them. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it. If a poll fails with no cache to fall back on (first run, signed out), the meter blocks render as `--%` rather than disappearing.
+Rate-limit numbers are polled every 60 seconds (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint will 429 under heavier polling, so raise those values rather than lowering them. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it. If a poll fails with no cache to fall back on (first run, signed out), the meter blocks render as `--%` rather than disappearing.
 
 The rate-limit meters read as **budget remaining** — the number counts down from 100% as you spend, the battery drains full → empty alongside it, and the block heats from its base colour through clay (at 30% left) to barn red (at 10% left).
 
@@ -56,7 +57,7 @@ Worth knowing before you run it:
 
 - It reads your Claude Code **OAuth token** from the macOS Keychain (`security find-generic-password`) or `~/.claude/.credentials.json`, and sends it as a bearer token to `https://api.anthropic.com/api/oauth/usage` to fetch your rate-limit percentages. That endpoint is what the Claude Code client itself uses; it is not part of the documented public API and may change.
 - It reads your **session transcripts** under `~/.claude/projects/` to compute session duration, token totals, and cost.
-- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 30s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
+- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 60s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
 
 Nothing is uploaded anywhere except the single authenticated request to Anthropic's own usage endpoint.
 
@@ -72,7 +73,7 @@ The `PRICING` table near the top of `usage-hud.mjs` holds per-million-token list
 
 Everything worth changing is at the top of `lualine.sh`:
 
-- **Colours** — `BR_BG`, `DIR_BG`, `SESS_BG`, `BASE_5H`, `BASE_WK`, `BASE_CTX`, `BASE_TOK`, plus `AMBER` / `HOT` for the warning states. All 256-colour indices.
+- **Colours** — `BR_BG`, `DIR_BG`, `SESS_BG`, `AGENT_BG`, `BASE_5H`, `BASE_WK`, `BASE_CTX`, `BASE_TOK`, plus `AMBER` / `HOT` for the warning states. All 256-colour indices.
 - **Icons** — the `I_*` variables. Note they hold **literal glyph bytes**, not escapes: macOS ships bash 3.2, which does not expand `$'\uXXXX'`.
 - **Thresholds** — `meter_bg`, `meter_fg`, and `meter_icon` all switch at 70% and 90%; `meter_icon` adds steps at 25% and 50%.
 
