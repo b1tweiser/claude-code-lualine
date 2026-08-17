@@ -166,8 +166,16 @@ add_seg " ${I_DIR} ${dir_name} " "$DIR_FG" "$DIR_BG"
 sess_txt=" ${I_SESS} ${sess}"
 [ "${agents:-0}" -gt 0 ] 2>/dev/null && sess_txt="${sess_txt} ${SUBSEP} ${I_AGENT} ${agents}"
 [ -n "$sess" ]   && add_seg "${sess_txt} " "$DARK_FG" "$SESS_BG"
-[ -n "$fiveh" ]  && add_seg " $(meter_icon "$fiveh") $(meter_left "$fiveh")% ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
-[ -n "$wk" ]     && add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$DARK_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+if [ -n "$fiveh" ]; then
+  add_seg " $(meter_icon "$fiveh") $(meter_left "$fiveh")% ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
+else
+  add_seg " $(meter_icon 0) --% " "$DARK_FG" "$BASE_5H"
+fi
+if [ -n "$wk" ]; then
+  add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$DARK_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+else
+  add_seg " ${I_WK} $(meter_icon 0) --% " "$DARK_FG" "$BASE_WK"
+fi
 [ -n "$opus" ]   && add_seg " ${I_OPUS} $(meter_icon "$opus") $(meter_left "$opus")% ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
 add_seg " ${I_CTX} ${ctx}% " "$(meter_fg "$ctx" "$LIGHT_FG")" "$(meter_bg "$ctx" "$BASE_CTX")"
 [ -n "$tokens" ] && add_seg " ${I_TOK} ${tokens} " "$DARK_FG" "$BASE_TOK"
