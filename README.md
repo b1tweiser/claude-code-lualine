@@ -26,19 +26,51 @@ Rate-limit numbers are polled every 2 minutes (`CACHE_TTL_MS`) and served from c
 
 The rate-limit meters read as **budget remaining** — the number counts down from 100% as you spend, the battery drains full → empty alongside it, and the block heats from its base colour through clay (at 30% left) to barn red (at 10% left).
 
-## Requirements
-
-- **A Nerd Font** in your terminal (the icons and powerline separators come from it). Built and tested against JetBrainsMono Nerd Font.
-- **Node.js** 18+ and **jq**.
-- macOS or Linux. Credential reading is implemented for the macOS Keychain and for `~/.claude/.credentials.json`.
-
 ## Install
+
+### 1. Prerequisites
+
+**A Nerd Font**, set as your terminal font. The powerline separators and every icon come from it — without one you get tofu boxes.
+
+```sh
+# macOS
+brew install --cask font-jetbrains-mono-nerd-font
+
+# Linux
+mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts
+curl -fLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
+unzip -o JetBrainsMono.zip && fc-cache -f
+```
+
+Then set the font in your terminal's settings (iTerm2: Settings → Profiles → Text → Font; Ghostty: `font-family = "JetBrainsMono Nerd Font"`; VS Code: `"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font"`).
+
+**`jq` and Node.js 18+:**
+
+```sh
+# macOS
+brew install jq node
+
+# Debian/Ubuntu
+sudo apt install jq nodejs
+```
+
+Verify all three before continuing — the last line should print a folder icon, not a box:
+
+```sh
+jq --version && node --version && printf '\uf07b\n'
+```
+
+### 2. Get the files
 
 ```sh
 git clone https://github.com/b1tweiser/claude-code-lualine.git ~/.claude/hud
 ```
 
-Then point Claude Code at it in `~/.claude/settings.json`:
+Any location works; just match the path in step 3.
+
+### 3. Point Claude Code at it
+
+Add to `~/.claude/settings.json`:
 
 ```json
 {
@@ -49,7 +81,36 @@ Then point Claude Code at it in `~/.claude/settings.json`:
 }
 ```
 
-`lualine.sh` is the renderer; it shells out to `usage-hud.mjs --json` for the numbers. `usage-hud.mjs` also runs standalone as a plain-text statusline if you'd rather not use the powerline version.
+If the file already exists, add the `statusLine` key alongside what's there rather than replacing the file. Any existing `statusLine` config is superseded.
+
+### 4. Check it
+
+```sh
+echo '{"cwd":"'"$PWD"'","model":{"display_name":"Opus 5"},"context_window":{"used_percentage":42}}' \
+  | bash ~/.claude/hud/lualine.sh
+```
+
+You should get a colored bar. Then start Claude Code — the statusline appears at the bottom. Rate-limit meters may show `--%` on the very first render, until the first successful poll.
+
+### Troubleshooting
+
+| Symptom | Cause |
+|---|---|
+| Boxes or blank squares instead of icons | Terminal isn't using a Nerd Font, or is falling back for bold text |
+| Nothing appears at all | `jq` or `node` missing, or a wrong path in `settings.json` — run the step 4 command to see the error |
+| Meters stuck at `--%` | No credentials found, or the usage endpoint is rejecting polls. Confirm you're signed in with `claude` |
+| Percentages don't move | Normal — usage is polled every 2 minutes, and a rejected poll backs off for 5 |
+| Cost shows `$0.00` | Session has no priced turns yet, or the model isn't in the `PRICING` table |
+
+### Uninstall
+
+Remove the `statusLine` block from `~/.claude/settings.json`, then `rm -rf ~/.claude/hud` and `rm -f ~/.claude/.hud-usage-cache.json ~/.claude/.hud-session-cost.json`.
+
+## Notes
+
+- **Vim mode is not required.** The leftmost mode block only renders if you've enabled vim mode in Claude Code with `/vim`; otherwise the bar simply starts at the git branch. Installing this does not change your editing mode.
+- `lualine.sh` is the renderer; it shells out to `usage-hud.mjs --json` for the numbers. `usage-hud.mjs` also runs standalone as a plain-text statusline if you'd rather not use the powerline version.
+- Credential reading is implemented for the macOS Keychain and for `~/.claude/.credentials.json`.
 
 ## What it accesses
 
