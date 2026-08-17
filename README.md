@@ -14,7 +14,6 @@ Segments, left to right:
 | branch | Git branch + dirty-file count |
 | dir | Current working directory |
 | session | Duration of the current session |
-
 | 5-hour limit | Battery icon + percent of the window still left, and time until reset |
 | weekly limit | Same, for the 7-day window |
 | Opus weekly | Same, for the separate Opus cap — hidden unless your plan reports one |
