@@ -21,7 +21,7 @@ Segments, left to right:
 | session tokens | Total input + output tokens this session |
 | session cost | List-price cost of this session's tokens |
 
-Rate-limit numbers are polled every 60 seconds (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint will 429 under heavier polling, so raise those values rather than lowering them. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it.
+Rate-limit numbers are polled every 30 seconds (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint will 429 under heavier polling, so raise those values rather than lowering them. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it.
 
 The rate-limit meters read as **budget remaining** — the number counts down from 100% as you spend, the battery drains full → empty alongside it, and the block heats from its base colour through clay (at 30% left) to barn red (at 10% left).
 
@@ -56,7 +56,7 @@ Worth knowing before you run it:
 
 - It reads your Claude Code **OAuth token** from the macOS Keychain (`security find-generic-password`) or `~/.claude/.credentials.json`, and sends it as a bearer token to `https://api.anthropic.com/api/oauth/usage` to fetch your rate-limit percentages. That endpoint is what the Claude Code client itself uses; it is not part of the documented public API and may change.
 - It reads your **session transcripts** under `~/.claude/projects/` to compute session duration, token totals, and cost.
-- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 60s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
+- Everything stays local. Two cache files are written next to your config: `.hud-usage-cache.json` (rate limits, 30s TTL) and `.hud-session-cost.json` (per-session byte offset + running cost).
 
 Nothing is uploaded anywhere except the single authenticated request to Anthropic's own usage endpoint.
 
