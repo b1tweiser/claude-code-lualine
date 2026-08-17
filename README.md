@@ -14,13 +14,14 @@ Segments, left to right:
 | branch | Git branch + dirty-file count |
 | dir | Current working directory |
 | session | Duration of the current session |
-| agents | Subagents currently in flight — `Task`/`Agent` calls with no result back yet; reads `0` when idle |
+
 | 5-hour limit | Battery icon + percent of the window still left, and time until reset |
 | weekly limit | Same, for the 7-day window |
 | Opus weekly | Same, for the separate Opus cap — hidden unless your plan reports one |
 | context | Percentage of the model's context window in use |
 | session tokens | Total input + output tokens this session |
 | session cost | List-price cost of this session's tokens |
+| agents | Subagents in flight — `Task`/`Agent` calls with no result back yet. Tail of the line, shown only while at least one is running |
 
 Rate-limit numbers are polled every 2 minutes (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint 429s readily — 30s polling trips it immediately and even 60s draws rejections — and every rejection costs 5 minutes of frozen numbers, so raise those values rather than lowering them. Set `CLAUDE_HUD_DUMP=/path/to/file.json` to capture the raw endpoint payload on the next successful poll if you want to inspect fields the renderer does not use. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it. If a poll fails with no cache to fall back on (first run, signed out), the meter blocks render as `--%` rather than disappearing.
 

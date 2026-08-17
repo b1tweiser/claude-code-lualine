@@ -39,7 +39,7 @@ TAIL_BG=234        # ink backdrop for final cap
 # Claude-orange session pop; each metric a distinct warm step, all ramping
 # through clay → barn red as they fill. No greens/greys — stays on-palette.
 SESS_BG=208        # Claude orange — current session, made to POP
-AGENT_BG=203       # warm salmon — subagents in flight, distinct from the meter oranges
+AGENT_BG=166       # cinnamon — subagents in flight, tail of the line
 BASE_5H=215        # bright peach-orange — the live 5h window, the meter you act on
 BASE_WK=94         # deep bronze — weekly cap, deliberately recessive
 BASE_CTX=130       # burnt sienna
@@ -165,9 +165,6 @@ add_seg " ${I_DIR} ${dir_name} " "$DIR_FG" "$DIR_BG"
 # Session pops (ink on Claude orange); kraft-brown/sienna meters take cream;
 # weekly stays recessive with a dim base fg. Amber/red states handled by meter_fg.
 [ -n "$sess" ]   && add_seg " ${I_SESS} ${sess} " "$DARK_FG" "$SESS_BG"
-# Subagents currently in flight (spawned, no tool_result yet). Always shown, so
-# an idle 0 is distinguishable from the segment having dropped out.
-add_seg " ${I_AGENT} ${agents:-0} " "$DARK_FG" "$AGENT_BG"
 if [ -n "$fiveh" ]; then
   add_seg " $(meter_icon "$fiveh") $(meter_left "$fiveh")% ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
 else
@@ -182,6 +179,8 @@ fi
 add_seg " ${I_CTX} ${ctx}% " "$(meter_fg "$ctx" "$LIGHT_FG")" "$(meter_bg "$ctx" "$BASE_CTX")"
 [ -n "$tokens" ] && add_seg " ${I_TOK} ${tokens} " "$DARK_FG" "$BASE_TOK"
 [ -n "$cost" ]   && add_seg " ${I_COST} \$${cost} " "$DARK_FG" "$BASE_TOK"
+# Subagents in flight (spawned, no tool_result yet) — tail of the line, only when running.
+[ "${agents:-0}" -gt 0 ] 2>/dev/null && add_seg " ${I_AGENT} ${agents} " "$DARK_FG" "$AGENT_BG"
 
 # ── Render powerline ──────────────────────────────────────────────────────────
 out=""
