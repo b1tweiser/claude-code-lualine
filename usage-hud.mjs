@@ -30,7 +30,8 @@ const RED = '\x1b[31m';
 // ============================================================================
 // Config
 // ============================================================================
-const CACHE_TTL_MS = 60_000; // 60s between API polls — 30s reliably trips the endpoint's 429
+const CACHE_TTL_MS = 120_000; // 2min between API polls — the endpoint 429s below this, and
+                              // each rejection costs CACHE_TTL_FAILURE_MS of frozen numbers
 const CACHE_TTL_FAILURE_MS = 300_000; // back off 5min after a failed poll (the endpoint 429s easily)
 const API_TIMEOUT_MS = 10_000;
 const MAX_TAIL_BYTES = 512 * 1024;
@@ -376,6 +377,11 @@ async function getUsageData() {
   if (creds.expiresAt && creds.expiresAt <= Date.now()) return cache?.data || null;
 
   const response = await fetchUsage(creds.accessToken);
+  // Debug hook: set CLAUDE_HUD_DUMP=/path to capture the raw endpoint payload
+  // on the next successful poll, without spending an extra request on it.
+  if (response && process.env.CLAUDE_HUD_DUMP) {
+    try { writeFileSync(process.env.CLAUDE_HUD_DUMP, JSON.stringify(response, null, 2)); } catch {}
+  }
   if (!response) {
     // Serve the stale cache, and remember the failure so we back off.
     if (cache?.data) {
