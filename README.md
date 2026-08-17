@@ -21,7 +21,7 @@ Segments, left to right:
 | session tokens | Total input + output tokens this session |
 | session cost | List-price cost of this session's tokens |
 
-An asterisk (`*`) after a battery means the usage poll failed and the percentages are from cache — most often the endpoint rate-limiting the poll. A failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw.
+Rate-limit numbers are polled every 3 minutes (`CACHE_TTL_MS`) and served from cache in between; a failed poll backs off for 5 minutes (`CACHE_TTL_FAILURE_MS`) rather than retrying on every redraw. The endpoint 429s under heavier polling, so raise those values rather than lowering them. `usage-hud.mjs --json` still reports a `stale` flag if you want to surface cached-data state somehow — the powerline renderer deliberately ignores it.
 
 The rate-limit meters read as **budget remaining**: the battery drains full → empty as you spend, and the block heats from its base colour through clay (≥70%) to barn red (≥90%).
 

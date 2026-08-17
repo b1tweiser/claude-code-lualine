@@ -126,7 +126,7 @@ I_TOK=$''    # coins         (fa-coins U+EDE8) — session tokens
 I_COST=$'󰄔'   # cash  (md-cash U+F0114) — session cost
 I_AGENT=$''  # robot         (fa-robot U+EE0D) — subagent calls
 opus=""; opus_r=""; tokens=""; cost=""; agents=""
-fiveh=""; fiveh_r=""; wk=""; wk_r=""; stale=""; sess=""
+fiveh=""; fiveh_r=""; wk=""; wk_r=""; sess=""
 usage_json=$(printf '%s' "$input" | node "$HOME/.claude/hud/usage-hud.mjs" --json 2>/dev/null)
 if [ -n "$usage_json" ]; then
   eval "$(printf '%s' "$usage_json" | jq -r '
@@ -139,7 +139,6 @@ if [ -n "$usage_json" ]; then
     "tokens=\(.sessionTokens // "")",
     "cost=\(.sessionCost // "" | ltrimstr("$"))",
     "agents=\(.agentCalls // 0)",
-    "stale=\(if .stale then "*" else "" end)",
     "sess=\(if .sessionMin != null then (if .sessionMin >= 60 then "\(.sessionMin/60|floor)h\(.sessionMin%60)m" else "\(.sessionMin)m" end) else "" end)"
   ' 2>/dev/null)"
 fi
@@ -159,9 +158,9 @@ add_seg " ${I_DIR} ${dir_name} " "$DIR_FG" "$DIR_BG"
 sess_txt=" ${I_SESS} ${sess}"
 [ "${agents:-0}" -gt 0 ] 2>/dev/null && sess_txt="${sess_txt} ${SUBSEP} ${I_AGENT} ${agents}"
 [ -n "$sess" ]   && add_seg "${sess_txt} " "$DARK_FG" "$SESS_BG"
-[ -n "$fiveh" ]  && add_seg " $(meter_icon "$fiveh")${stale:+ $stale} ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
-[ -n "$wk" ]     && add_seg " ${I_WK} $(meter_icon "$wk")${stale:+ $stale} ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$DARK_FG")" "$(meter_bg "$wk" "$BASE_WK")"
-[ -n "$opus" ]   && add_seg " ${I_OPUS} $(meter_icon "$opus")${stale:+ $stale} ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
+[ -n "$fiveh" ]  && add_seg " $(meter_icon "$fiveh") ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
+[ -n "$wk" ]     && add_seg " ${I_WK} $(meter_icon "$wk") ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$DARK_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+[ -n "$opus" ]   && add_seg " ${I_OPUS} $(meter_icon "$opus") ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
 add_seg " ${I_CTX} ${ctx}% " "$(meter_fg "$ctx" "$LIGHT_FG")" "$(meter_bg "$ctx" "$BASE_CTX")"
 [ -n "$tokens" ] && add_seg " ${I_TOK} ${tokens} " "$DARK_FG" "$BASE_TOK"
 [ -n "$cost" ]   && add_seg " ${I_COST} \$${cost} " "$DARK_FG" "$BASE_TOK"
