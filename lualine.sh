@@ -165,8 +165,9 @@ add_seg " ${I_DIR} ${dir_name} " "$DIR_FG" "$DIR_BG"
 # Session pops (ink on Claude orange); kraft-brown/sienna meters take cream;
 # weekly stays recessive with a dim base fg. Amber/red states handled by meter_fg.
 [ -n "$sess" ]   && add_seg " ${I_SESS} ${sess} " "$DARK_FG" "$SESS_BG"
-# Subagents currently in flight (spawned, no tool_result yet). Hidden when none.
-[ "${agents:-0}" -gt 0 ] 2>/dev/null && add_seg " ${I_AGENT} ${agents} " "$DARK_FG" "$AGENT_BG"
+# Subagents currently in flight (spawned, no tool_result yet). Always shown, so
+# an idle 0 is distinguishable from the segment having dropped out.
+add_seg " ${I_AGENT} ${agents:-0} " "$DARK_FG" "$AGENT_BG"
 if [ -n "$fiveh" ]; then
   add_seg " $(meter_icon "$fiveh") $(meter_left "$fiveh")% ${SUBSEP} ${I_RESET} ${fiveh_r} " "$(meter_fg "$fiveh" "$DARK_FG")" "$(meter_bg "$fiveh" "$BASE_5H")"
 else

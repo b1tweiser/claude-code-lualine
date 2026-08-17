@@ -14,7 +14,7 @@ Segments, left to right:
 | branch | Git branch + dirty-file count |
 | dir | Current working directory |
 | session | Duration of the current session |
-| agents | Subagents currently in flight — spawned with no result back yet; hidden when none are running |
+| agents | Subagents currently in flight — `Task`/`Agent` calls with no result back yet; reads `0` when idle |
 | 5-hour limit | Battery icon + percent of the window still left, and time until reset |
 | weekly limit | Same, for the 7-day window |
 | Opus weekly | Same, for the separate Opus cap — hidden unless your plan reports one |
