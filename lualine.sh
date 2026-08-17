@@ -39,9 +39,9 @@ TAIL_BG=234        # ink backdrop for final cap
 # Claude-orange session pop; each metric a distinct warm step, all ramping
 # through clay → barn red as they fill. No greens/greys — stays on-palette.
 SESS_BG=208        # Claude orange — current session, made to POP
-AGENT_BG=214       # light amber — subagents in flight, sits beside the session block
-BASE_5H=137        # kraft brown
-BASE_WK=138        # dusty rose-brown — weekly cap; calm, no red/yellow cast
+AGENT_BG=203       # warm salmon — subagents in flight, distinct from the meter oranges
+BASE_5H=215        # bright peach-orange — the live 5h window, the meter you act on
+BASE_WK=94         # deep bronze — weekly cap, deliberately recessive
 BASE_CTX=130       # burnt sienna
 BASE_TOK=172       # dark orange — session tokens + cost tail
 AMBER=173          # shared "warming" colour (≥70%) — Claude clay
@@ -173,9 +173,9 @@ else
   add_seg " $(meter_icon 0) --% " "$DARK_FG" "$BASE_5H"
 fi
 if [ -n "$wk" ]; then
-  add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$DARK_FG")" "$(meter_bg "$wk" "$BASE_WK")"
+  add_seg " ${I_WK} $(meter_icon "$wk") $(meter_left "$wk")% ${SUBSEP} ${I_RESET} ${wk_r} " "$(meter_fg "$wk" "$LIGHT_FG")" "$(meter_bg "$wk" "$BASE_WK")"
 else
-  add_seg " ${I_WK} $(meter_icon 0) --% " "$DARK_FG" "$BASE_WK"
+  add_seg " ${I_WK} $(meter_icon 0) --% " "$LIGHT_FG" "$BASE_WK"
 fi
 [ -n "$opus" ]   && add_seg " ${I_OPUS} $(meter_icon "$opus") $(meter_left "$opus")% ${SUBSEP} ${I_RESET} ${opus_r} " "$(meter_fg "$opus" "$LIGHT_FG")" "$(meter_bg "$opus" 131)"
 add_seg " ${I_CTX} ${ctx}% " "$(meter_fg "$ctx" "$LIGHT_FG")" "$(meter_bg "$ctx" "$BASE_CTX")"
