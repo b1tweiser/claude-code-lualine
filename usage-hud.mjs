@@ -30,7 +30,7 @@ const RED = '\x1b[31m';
 // ============================================================================
 // Config
 // ============================================================================
-const CACHE_TTL_MS = 180_000; // 3min between API polls (the endpoint 429s under heavier polling)
+const CACHE_TTL_MS = 60_000; // 60s between API polls; a 429 falls back to CACHE_TTL_FAILURE_MS
 const CACHE_TTL_FAILURE_MS = 300_000; // back off 5min after a failed poll (the endpoint 429s easily)
 const API_TIMEOUT_MS = 10_000;
 const MAX_TAIL_BYTES = 512 * 1024;
